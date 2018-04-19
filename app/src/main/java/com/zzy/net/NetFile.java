@@ -30,6 +30,9 @@ public class NetFile
 	private Handler handler;
 	private NetThread netThread;
 
+	private final static int DATA_REMOTE = 3;
+	private final static int DATA_UID = 8;
+
 	public NetFile(Context context) {
 		this.context = context;
 		handler = new Handler(new Handler.Callback() {
@@ -98,7 +101,7 @@ public class NetFile
 			s.useDelimiter("\n");
 			while(s.hasNextLine()){
 				sTmp = s.nextLine();
-				netInfo = parseData(sTmp);
+				netInfo = parseDataNew(sTmp);
 				if(netInfo!=null) {
 					netInfo.setType(type);
 					saveToList(netInfo);
@@ -146,90 +149,57 @@ public class NetFile
 			return iValue;
 		}
 
-		private NetInfo parseData(String sData)
+		private NetInfo parseDataNew(String sData)
 		{
-			String sSplitItem[] = sData.split(" ");
-			NetInfo netInfo = new NetInfo();
+			String sSplitItem[] = sData.split("\\s+");
 			String sTmp = null;
-
-			if(sSplitItem.length<8)
+			if(sSplitItem.length<9)
 			{
 				return null;
 			}
 
-			int j=0;
-			int k=0;
-			while(j<sSplitItem.length)
+			NetInfo netInfo = new NetInfo();
+
+			sTmp = sSplitItem[DATA_REMOTE];
+			String sDesItem[] = sTmp.split(":");
+			if(sDesItem.length<2)
 			{
-				if(sSplitItem[j].length()<1 && k==j)
-				{
-					k++;
-					j++;
-					continue;
-				}
+				return null;
+			}
+			netInfo.setPort(strToInt(sDesItem[1], 16, 0));
 
-				if(j==k+1)
-				{
-					//addressInfo.sSrc = sSplitItem[j];
-				}
-				else if(j==k+2)
-				{
-					sTmp = sSplitItem[j];
-					String sDesItem[] = sTmp.split(":");
-					if(sDesItem.length<2)
-					{
-						return null;
-					}
-					netInfo.setPort(strToInt(sDesItem[1], 16, 0));
-					sTmp = sDesItem[0];
-
-					int len = sTmp.length();
-					if(len<8)
-					{
-						return null;
-					}
-
-					sTmp = sTmp.substring(len-8);
-					netInfo.setIp(strToLong(sTmp, 16, 0));
-
-					sbBuilder.setLength(0);
-					sbBuilder.append(strToInt(sTmp.substring(6, 8), 16, 0))
-							.append(".")
-							.append(strToInt(sTmp.substring(4, 6), 16, 0))
-							.append(".")
-							.append(strToInt(sTmp.substring(2, 4), 16, 0))
-							.append(".")
-							.append(strToInt(sTmp.substring(0, 2), 16, 0));
-
-					sTmp = sbBuilder.toString();
-					netInfo.setAddress(sTmp);
-
-					sTmp = sbBuilder.toString();
-					netInfo.setAddress(sTmp);
-					if(sTmp.equals("0.0.0.0")) {
-						return null;
-					}
-				}
-				else if(j==k+7)
-				{
-					if(sSplitItem[j].length()<1)
-					{
-						k++;
-					}
-					else
-					{
-						sTmp =sSplitItem[j];
-						netInfo.setUid(strToInt(sTmp, 10, 0));
-						break;
-					}
-				}
-				j++;
+			sTmp = sDesItem[0];
+			int len = sTmp.length();
+			if(len<8)
+			{
+				return null;
 			}
 
+			sTmp = sTmp.substring(len-8);
+			netInfo.setIp(strToLong(sTmp, 16, 0));
+
+			sbBuilder.setLength(0);
+			sbBuilder.append(strToInt(sTmp.substring(6, 8), 16, 0))
+					.append(".")
+					.append(strToInt(sTmp.substring(4, 6), 16, 0))
+					.append(".")
+					.append(strToInt(sTmp.substring(2, 4), 16, 0))
+					.append(".")
+					.append(strToInt(sTmp.substring(0, 2), 16, 0));
+
+			sTmp = sbBuilder.toString();
+			netInfo.setAddress(sTmp);
+
+			if(sTmp.equals("0.0.0.0")) {
+				return null;
+			}
+
+			sTmp =sSplitItem[DATA_UID];
+			netInfo.setUid(strToInt(sTmp, 10, 0));
+
 			return netInfo;
-
 		}
-
+		
 		private void saveToList(NetInfo netInfo)
 		{
 			if(netInfo==null)
