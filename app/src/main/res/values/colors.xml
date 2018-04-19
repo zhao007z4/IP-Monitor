@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="colorPrimary">#FCCD3C</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorDrak">#c8c8c8</color>
+    <color name="colorActivityBackground">#ffffff</color>
+    <color name="colorDefaultText">#000000</color>
+    <color name="transparent">#00ffffff</color>
+    <color name="colorBackTint">#000000</color>
+
+
+</resources>
